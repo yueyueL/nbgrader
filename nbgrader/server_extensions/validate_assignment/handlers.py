@@ -44,7 +44,6 @@ class ValidateAssignmentHandler(JupyterHandler):
         if not target.is_relative_to(root):
             raise web.HTTPError(403, "Access denied: path outside allowed directory")
         fullpath = str(target)
-        
         try:
             config = self.load_config()
             validator = Validator(config=config)
