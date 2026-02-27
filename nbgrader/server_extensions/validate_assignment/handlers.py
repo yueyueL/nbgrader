@@ -6,6 +6,7 @@ import traceback
 
 from tornado import web
 from textwrap import dedent
+from pathlib import Path
 
 from jupyter_server.utils import url_path_join as ujoin
 from jupyter_server.base.handlers import JupyterHandler
@@ -38,11 +39,12 @@ class ValidateAssignmentHandler(JupyterHandler):
         return app.config
 
     def validate_notebook(self, path):
-        fullpath = os.path.normpath(os.path.join(self.root_dir, path))
-        root_normalized = os.path.normpath(self.root_dir)
-        if not fullpath.startswith(root_normalized + os.sep):
+        root = Path(self.root_dir).resolve()
+        target = (root / path).resolve()
+        if not target.is_relative_to(root):
             raise web.HTTPError(403, "Access denied: path outside allowed directory")
-
+        fullpath = str(target)
+        
         try:
             config = self.load_config()
             validator = Validator(config=config)
